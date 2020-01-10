@@ -6,114 +6,117 @@
 
 /**
  * @file
- * Implements DeMarker strategy.
+ * Implements DeMarker strategy based on for the DeMarker indicator.
  */
 
 // Includes.
-#include "../../EA31337-classes/Indicators/Indi_DeMarker.mqh"
-#include "../../EA31337-classes/Strategy.mqh"
+#include <EA31337-classes/Indicators/Indi_DeMarker.mqh>
+#include <EA31337-classes/Strategy.mqh>
 
 // User input params.
-INPUT string __DeMarker_Parameters__ = "-- Settings for the DeMarker indicator --";  // >>> DEMARKER <<<
-INPUT uint DeMarker_Active_Tf = 0;        // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
-INPUT int DeMarker_Period_M1 = 68;        // Period for M1
-INPUT int DeMarker_Period_M5 = 76;        // Period for M5
-INPUT int DeMarker_Period_M15 = 26;       // Period for M15
-INPUT int DeMarker_Period_M30 = 14;       // Period for M30
-INPUT int DeMarker_Shift = 1;             // Shift
-INPUT double DeMarker_SignalLevel = 0.5;  // Signal level (0.0-0.5)
+INPUT string __DeMarker_Parameters__ = "-- DeMarker strategy params --";  // >>> DEMARKER <<<
+INPUT int DeMarker_Active_Tf = 0;             // Activate timeframes (1-255, e.g. M1=1,M5=2,M15=4,M30=8,H1=16,H2=32...)
+INPUT int DeMarker_Period = 68;               // Period
+INPUT int DeMarker_Shift = 1;                 // Shift
+INPUT double DeMarker_SignalOpenLevel = 0.5;  // Signal open level (0.0-0.5)
 INPUT ENUM_TRAIL_TYPE DeMarker_TrailingStopMethod = 23;    // Trail stop method
 INPUT ENUM_TRAIL_TYPE DeMarker_TrailingProfitMethod = 22;  // Trail profit method
-INPUT int DeMarker1_SignalMethod = 12;                     // Signal method for M1 (-31-31)
-INPUT int DeMarker5_SignalMethod = 12;                     // Signal method for M5 (-31-31)
-INPUT int DeMarker15_SignalMethod = 4;                     // Signal method for M15 (-31-31)
-INPUT int DeMarker30_SignalMethod = 12;                    // Signal method for M30 (-31-31)
-INPUT int DeMarker1_OpenCondition1 = 680;                  // Open condition 1 for M1 (0-1023)
-INPUT int DeMarker1_OpenCondition2 = 0;                    // Open condition 2 for M1 (0-1023)
+INPUT int DeMarker1_SignalBaseMethod = 12;                 // Signal base method (-31-31)
+INPUT int DeMarker1_OpenCondition1 = 680;                  // Open condition 1 (0-1023)
+INPUT int DeMarker1_OpenCondition2 = 0;                    // Open condition 2 (0-1023)
 INPUT ENUM_MARKET_EVENT DeMarker1_CloseCondition = 1;      // Close condition for M1
-INPUT int DeMarker5_OpenCondition1 = 971;                  // Open condition 1 for M5 (0-1023)
-INPUT int DeMarker5_OpenCondition2 = 0;                    // Open condition 2 for M5 (0-1023)
-INPUT ENUM_MARKET_EVENT DeMarker5_CloseCondition = 1;      // Close condition for M5
-INPUT int DeMarker15_OpenCondition1 = 874;                 // Open condition 1 for M15 (0-1023)
-INPUT int DeMarker15_OpenCondition2 = 0;                   // Open condition 2 for M15 (0-1023)
-INPUT ENUM_MARKET_EVENT DeMarker15_CloseCondition = 1;     // Close condition for M15
-INPUT int DeMarker30_OpenCondition1 = 195;                 // Open condition 1 for M30 (0-1023)
-INPUT int DeMarker30_OpenCondition2 = 0;                   // Open condition 2 for M30 (0-1023)
-INPUT ENUM_MARKET_EVENT DeMarker30_CloseCondition = 1;     // Close condition for M30
-INPUT double DeMarker1_MaxSpread = 6.0;                    // Max spread to trade for M1 (pips)
-INPUT double DeMarker5_MaxSpread = 7.0;                    // Max spread to trade for M5 (pips)
-INPUT double DeMarker15_MaxSpread = 8.0;                   // Max spread to trade for M15 (pips)
-INPUT double DeMarker30_MaxSpread = 10.0;                  // Max spread to trade for M30 (pips)
+INPUT double DeMarker_MaxSpread = 6.0;                     // Max spread to trade (pips)
+
+// Struct to define strategy parameters to override.
+struct Stg_DeMarker_Params : Stg_Params {
+  unsigned int DeMarker_Period;
+  ENUM_APPLIED_PRICE DeMarker_Applied_Price;
+  int DeMarker_Shift;
+  ENUM_TRAIL_TYPE DeMarker_TrailingStopMethod;
+  ENUM_TRAIL_TYPE DeMarker_TrailingProfitMethod;
+  double DeMarker_SignalOpenLevel;
+  long DeMarker_SignalBaseMethod;
+  long DeMarker_SignalOpenMethod1;
+  long DeMarker_SignalOpenMethod2;
+  double DeMarker_SignalCloseLevel;
+  ENUM_MARKET_EVENT DeMarker_SignalCloseMethod1;
+  ENUM_MARKET_EVENT DeMarker_SignalCloseMethod2;
+  double DeMarker_MaxSpread;
+
+  // Constructor: Set default param values.
+  Stg_DeMarker_Params()
+      : DeMarker_Period(::DeMarker_Period),
+        DeMarker_Applied_Price(::DeMarker_Applied_Price),
+        DeMarker_Shift(::DeMarker_Shift),
+        DeMarker_TrailingStopMethod(::DeMarker_TrailingStopMethod),
+        DeMarker_TrailingProfitMethod(::DeMarker_TrailingProfitMethod),
+        DeMarker_SignalOpenLevel(::DeMarker_SignalOpenLevel),
+        DeMarker_SignalBaseMethod(::DeMarker_SignalBaseMethod),
+        DeMarker_SignalOpenMethod1(::DeMarker_SignalOpenMethod1),
+        DeMarker_SignalOpenMethod2(::DeMarker_SignalOpenMethod2),
+        DeMarker_SignalCloseLevel(::DeMarker_SignalCloseLevel),
+        DeMarker_SignalCloseMethod1(::DeMarker_SignalCloseMethod1),
+        DeMarker_SignalCloseMethod2(::DeMarker_SignalCloseMethod2),
+        DeMarker_MaxSpread(::DeMarker_MaxSpread) {}
+};
+
+// Loads pair specific param values.
+#include "sets/EURUSD_H1.h"
+#include "sets/EURUSD_H4.h"
+#include "sets/EURUSD_M1.h"
+#include "sets/EURUSD_M15.h"
+#include "sets/EURUSD_M30.h"
+#include "sets/EURUSD_M5.h"
 
 class Stg_DeMarker : public Strategy {
  public:
   Stg_DeMarker(StgParams &_params, string _name) : Strategy(_params, _name) {}
 
-  static Stg_DeMarker *Init_M1() {
-    ChartParams cparams1(PERIOD_M1);
-    IndicatorParams dm_iparams(10, INDI_DEMARKER);
-    DeMarker_Params dm1_iparams(DeMarker_Period_M1);
-    StgParams dm1_sparams(new Trade(PERIOD_M1, _Symbol), new Indi_DeMarker(dm1_iparams, dm_iparams, cparams1), NULL,
-                          NULL);
-    dm1_sparams.SetSignals(DeMarker1_SignalMethod, DeMarker1_OpenCondition1, DeMarker1_OpenCondition2,
-                           DeMarker1_CloseCondition, NULL, DeMarker_SignalLevel, NULL);
-    dm1_sparams.SetStops(DeMarker_TrailingProfitMethod, DeMarker_TrailingStopMethod);
-    dm1_sparams.SetMaxSpread(DeMarker1_MaxSpread);
-    dm1_sparams.SetId(DEMARKER1);
-    return (new Stg_DeMarker(dm1_sparams, "DeMarker1"));
-  }
-  static Stg_DeMarker *Init_M5() {
-    ChartParams cparams5(PERIOD_M5);
-    IndicatorParams dm_iparams(10, INDI_DEMARKER);
-    DeMarker_Params dm5_iparams(DeMarker_Period_M5);
-    StgParams dm5_sparams(new Trade(PERIOD_M5, _Symbol), new Indi_DeMarker(dm5_iparams, dm_iparams, cparams5), NULL,
-                          NULL);
-    dm5_sparams.SetSignals(DeMarker5_SignalMethod, DeMarker5_OpenCondition1, DeMarker5_OpenCondition2,
-                           DeMarker5_CloseCondition, NULL, DeMarker_SignalLevel, NULL);
-    dm5_sparams.SetStops(DeMarker_TrailingProfitMethod, DeMarker_TrailingStopMethod);
-    dm5_sparams.SetMaxSpread(DeMarker5_MaxSpread);
-    dm5_sparams.SetId(DEMARKER5);
-    return (new Stg_DeMarker(dm5_sparams, "DeMarker5"));
-  }
-  static Stg_DeMarker *Init_M15() {
-    ChartParams cparams15(PERIOD_M15);
-    IndicatorParams dm_iparams(10, INDI_DEMARKER);
-    DeMarker_Params dm15_iparams(DeMarker_Period_M15);
-    StgParams dm15_sparams(new Trade(PERIOD_M15, _Symbol), new Indi_DeMarker(dm15_iparams, dm_iparams, cparams15), NULL,
-                           NULL);
-    dm15_sparams.SetSignals(DeMarker15_SignalMethod, DeMarker15_OpenCondition1, DeMarker15_OpenCondition2,
-                            DeMarker15_CloseCondition, NULL, DeMarker_SignalLevel, NULL);
-    dm15_sparams.SetStops(DeMarker_TrailingProfitMethod, DeMarker_TrailingStopMethod);
-    dm15_sparams.SetMaxSpread(DeMarker15_MaxSpread);
-    dm15_sparams.SetId(DEMARKER15);
-    return (new Stg_DeMarker(dm15_sparams, "DeMarker15"));
-  }
-  static Stg_DeMarker *Init_M30() {
-    ChartParams cparams30(PERIOD_M30);
-    IndicatorParams dm_iparams(10, INDI_DEMARKER);
-    DeMarker_Params dm30_iparams(DeMarker_Period_M30);
-    StgParams dm30_sparams(new Trade(PERIOD_M30, _Symbol), new Indi_DeMarker(dm30_iparams, dm_iparams, cparams30), NULL,
-                           NULL);
-    dm30_sparams.SetSignals(DeMarker30_SignalMethod, DeMarker30_OpenCondition1, DeMarker30_OpenCondition2,
-                            DeMarker30_CloseCondition, NULL, DeMarker_SignalLevel, NULL);
-    dm30_sparams.SetStops(DeMarker_TrailingProfitMethod, DeMarker_TrailingStopMethod);
-    dm30_sparams.SetMaxSpread(DeMarker30_MaxSpread);
-    dm30_sparams.SetId(DEMARKER30);
-    return (new Stg_DeMarker(dm30_sparams, "DeMarker30"));
-  }
-  static Stg_DeMarker *Init(ENUM_TIMEFRAMES _tf) {
+  static Stg_DeMarker *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
+    // Initialize strategy initial values.
+    Stg_DeMarker_Params _params;
     switch (_tf) {
-      case PERIOD_M1:
-        return Init_M1();
-      case PERIOD_M5:
-        return Init_M5();
-      case PERIOD_M15:
-        return Init_M15();
-      case PERIOD_M30:
-        return Init_M30();
-      default:
-        return NULL;
+      case PERIOD_M1: {
+        Stg_DeMarker_EURUSD_M1_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M5: {
+        Stg_DeMarker_EURUSD_M5_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M15: {
+        Stg_DeMarker_EURUSD_M15_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_M30: {
+        Stg_DeMarker_EURUSD_M30_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_H1: {
+        Stg_DeMarker_EURUSD_H1_Params _new_params;
+        _params = _new_params;
+      }
+      case PERIOD_H4: {
+        Stg_DeMarker_EURUSD_H4_Params _new_params;
+        _params = _new_params;
+      }
     }
+    // Initialize strategy parameters.
+    ChartParams cparams(_tf);
+    DeMarker_Params adx_params(_params.DeMarker_Period, _params.DeMarker_Applied_Price);
+    IndicatorParams adx_iparams(10, INDI_DeMarker);
+    StgParams sparams(new Trade(_tf, _Symbol), new Indi_DeMarker(adx_params, adx_iparams, cparams), NULL, NULL);
+    sparams.logger.SetLevel(_log_level);
+    sparams.SetMagicNo(_magic_no);
+    sparams.SetSignals(_params.DeMarker_SignalBaseMethod, _params.DeMarker_SignalOpenMethod1,
+                       _params.DeMarker_SignalOpenMethod2, _params.DeMarker_SignalCloseMethod1,
+                       _params.DeMarker_SignalCloseMethod2, _params.DeMarker_SignalOpenLevel,
+                       _params.DeMarker_SignalCloseLevel);
+    sparams.SetStops(_params.DeMarker_TrailingProfitMethod, _params.DeMarker_TrailingStopMethod);
+    sparams.SetMaxSpread(_params.DeMarker_MaxSpread);
+    // Initialize strategy instance.
+    Strategy *_strat = new Stg_DeMarker(sparams, "DeMarker");
+    return _strat;
   }
 
   /**
@@ -159,5 +162,13 @@ class Stg_DeMarker : public Strategy {
         break;
     }
     return _result;
+  }
+
+  /**
+   * Check strategy's closing signal.
+   */
+  bool SignalClose(ENUM_ORDER_TYPE _cmd, long _signal_method = EMPTY, double _signal_level = EMPTY) {
+    if (_signal_level == EMPTY) _signal_level = GetSignalCloseLevel();
+    return SignalOpen(Order::NegateOrderType(_cmd), _signal_method, _signal_level);
   }
 };
