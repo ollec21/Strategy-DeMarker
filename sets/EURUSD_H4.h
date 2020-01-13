@@ -10,7 +10,6 @@ struct Stg_DeMarker_EURUSD_H4_Params : Stg_DeMarker_Params {
     symbol = "EURUSD";
     tf = PERIOD_H4;
     DeMarker_Period = 2;
-    DeMarker_Applied_Price = 3;
     DeMarker_Shift = 0;
     DeMarker_SignalOpenMethod = 0;
     DeMarker_SignalOpenLevel = 36;

@@ -28,9 +28,8 @@ INPUT double DeMarker_MaxSpread = 6.0;                                    // Max
 // Struct to define strategy parameters to override.
 struct Stg_DeMarker_Params : Stg_Params {
   unsigned int DeMarker_Period;
-  ENUM_APPLIED_PRICE DeMarker_Applied_Price;
   int DeMarker_Shift;
-  long DeMarker_SignalOpenMethod;
+  int DeMarker_SignalOpenMethod;
   double DeMarker_SignalOpenLevel;
   int DeMarker_SignalCloseMethod;
   double DeMarker_SignalCloseLevel;
@@ -41,7 +40,6 @@ struct Stg_DeMarker_Params : Stg_Params {
   // Constructor: Set default param values.
   Stg_DeMarker_Params()
       : DeMarker_Period(::DeMarker_Period),
-        DeMarker_Applied_Price(::DeMarker_Applied_Price),
         DeMarker_Shift(::DeMarker_Shift),
         DeMarker_SignalOpenMethod(::DeMarker_SignalOpenMethod),
         DeMarker_SignalOpenLevel(::DeMarker_SignalOpenLevel),
@@ -95,9 +93,9 @@ class Stg_DeMarker : public Strategy {
     }
     // Initialize strategy parameters.
     ChartParams cparams(_tf);
-    DeMarker_Params adx_params(_params.DeMarker_Period, _params.DeMarker_Applied_Price);
-    IndicatorParams adx_iparams(10, INDI_DeMarker);
-    StgParams sparams(new Trade(_tf, _Symbol), new Indi_DeMarker(adx_params, adx_iparams, cparams), NULL, NULL);
+    DeMarker_Params dm_params(_params.DeMarker_Period);
+    IndicatorParams dm_iparams(10, INDI_DEMARKER);
+    StgParams sparams(new Trade(_tf, _Symbol), new Indi_DeMarker(dm_params, dm_iparams, cparams), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.DeMarker_SignalOpenMethod, _params.DeMarker_SignalOpenMethod,
@@ -116,37 +114,35 @@ class Stg_DeMarker : public Strategy {
    *   _cmd (int) - type of trade order command
    *   period (int) - period to check for
    *   _method (int) - signal method to use by using bitwise AND operation
-   *   _level1 (double) - signal level to consider the signal
+   *   _level (double) - signal level to consider the signal
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
     bool _result = false;
     double demarker_0 = ((Indi_DeMarker *)this.Data()).GetValue(0);
     double demarker_1 = ((Indi_DeMarker *)this.Data()).GetValue(1);
     double demarker_2 = ((Indi_DeMarker *)this.Data()).GetValue(2);
-    if (_level1 == EMPTY) _level1 = GetSignalLevel1();
-    if (_level2 == EMPTY) _level2 = GetSignalLevel2();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
-        _result = demarker_0 < 0.5 - _level1;
+        _result = demarker_0 < 0.5 - _level;
         if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= demarker_1 < 0.5 - _level1;
-          if (METHOD(_method, 1)) _result &= demarker_2 < 0.5 - _level1;  // @to-remove?
-          if (METHOD(_method, 2)) _result &= demarker_0 < demarker_1;     // @to-remove?
-          if (METHOD(_method, 3)) _result &= demarker_1 < demarker_2;     // @to-remove?
-          if (METHOD(_method, 4)) _result &= demarker_1 < 0.5 - _level1 - _level1 / 2;
+          if (METHOD(_method, 0)) _result &= demarker_1 < 0.5 - _level;
+          if (METHOD(_method, 1)) _result &= demarker_2 < 0.5 - _level;  // @to-remove?
+          if (METHOD(_method, 2)) _result &= demarker_0 < demarker_1;    // @to-remove?
+          if (METHOD(_method, 3)) _result &= demarker_1 < demarker_2;    // @to-remove?
+          if (METHOD(_method, 4)) _result &= demarker_1 < 0.5 - _level - _level / 2;
         }
-        // PrintFormat("DeMarker buy: %g <= %g", demarker_0, 0.5 - _level1);
+        // PrintFormat("DeMarker buy: %g <= %g", demarker_0, 0.5 - _level);
         break;
       case ORDER_TYPE_SELL:
-        _result = demarker_0 > 0.5 + _level1;
+        _result = demarker_0 > 0.5 + _level;
         if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= demarker_1 > 0.5 + _level1;
-          if (METHOD(_method, 1)) _result &= demarker_2 > 0.5 + _level1;
+          if (METHOD(_method, 0)) _result &= demarker_1 > 0.5 + _level;
+          if (METHOD(_method, 1)) _result &= demarker_2 > 0.5 + _level;
           if (METHOD(_method, 2)) _result &= demarker_0 > demarker_1;
           if (METHOD(_method, 3)) _result &= demarker_1 > demarker_2;
-          if (METHOD(_method, 4)) _result &= demarker_1 > 0.5 + _level1 + _level1 / 2;
+          if (METHOD(_method, 4)) _result &= demarker_1 > 0.5 + _level + _level / 2;
         }
-        // PrintFormat("DeMarker sell: %g >= %g", demarker_0, 0.5 + _level1);
+        // PrintFormat("DeMarker sell: %g >= %g", demarker_0, 0.5 + _level);
         break;
     }
     return _result;
