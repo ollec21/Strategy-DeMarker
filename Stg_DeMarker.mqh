@@ -15,7 +15,7 @@
 
 // User input params.
 INPUT string __DeMarker_Parameters__ = "-- DeMarker strategy params --";  // >>> DEMARKER <<<
-INPUT int DeMarker_Period = 68;                                           // Period
+INPUT int DeMarker_Period = 12;                                           // Period
 INPUT int DeMarker_Shift = 1;                                             // Shift
 INPUT int DeMarker_SignalOpenMethod = 12;                                 // Signal open method (-31-31)
 INPUT double DeMarker_SignalOpenLevel = 0.5;                              // Signal open level (0.0-0.5)
@@ -101,32 +101,36 @@ class Stg_DeMarker : public Strategy {
    *   _level (double) - signal level to consider the signal
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
-    bool _result = false;
-    double demarker_0 = ((Indi_DeMarker *)this.Data()).GetValue(0);
-    double demarker_1 = ((Indi_DeMarker *)this.Data()).GetValue(1);
-    double demarker_2 = ((Indi_DeMarker *)this.Data()).GetValue(2);
+    Chart *_chart = Chart();
+    Indicator *_indi = Data();
+    bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
+    bool _result = _is_valid;
+    if (!_result) {
+      // Returns false when indicator data is not valid.
+      _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
+      return false;
+    }
+    double level = _level * Chart().GetPipSize();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
-        _result = demarker_0 < 0.5 - _level;
+        _result = _indi[CURR].value[0] < 0.5 - _level;
         if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= demarker_1 < 0.5 - _level;
-          if (METHOD(_method, 1)) _result &= demarker_2 < 0.5 - _level;  // @to-remove?
-          if (METHOD(_method, 2)) _result &= demarker_0 < demarker_1;    // @to-remove?
-          if (METHOD(_method, 3)) _result &= demarker_1 < demarker_2;    // @to-remove?
-          if (METHOD(_method, 4)) _result &= demarker_1 < 0.5 - _level - _level / 2;
+          if (METHOD(_method, 0)) _result &= _indi[PREV].value[0] < 0.5 - _level;
+          if (METHOD(_method, 1)) _result &= _indi[PPREV].value[0] < 0.5 - _level;  // @to-remove?
+          if (METHOD(_method, 2)) _result &= _indi[CURR].value[0] < _indi[PREV].value[0];    // @to-remove?
+          if (METHOD(_method, 3)) _result &= _indi[PREV].value[0] < _indi[PPREV].value[0];    // @to-remove?
+          if (METHOD(_method, 4)) _result &= _indi[PREV].value[0] < 0.5 - _level - _level / 2;
         }
-        // PrintFormat("DeMarker buy: %g <= %g", demarker_0, 0.5 - _level);
         break;
       case ORDER_TYPE_SELL:
-        _result = demarker_0 > 0.5 + _level;
+        _result = _indi[CURR].value[0] > 0.5 + _level;
         if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= demarker_1 > 0.5 + _level;
-          if (METHOD(_method, 1)) _result &= demarker_2 > 0.5 + _level;
-          if (METHOD(_method, 2)) _result &= demarker_0 > demarker_1;
-          if (METHOD(_method, 3)) _result &= demarker_1 > demarker_2;
-          if (METHOD(_method, 4)) _result &= demarker_1 > 0.5 + _level + _level / 2;
+          if (METHOD(_method, 0)) _result &= _indi[PREV].value[0] > 0.5 + _level;
+          if (METHOD(_method, 1)) _result &= _indi[PPREV].value[0] > 0.5 + _level;
+          if (METHOD(_method, 2)) _result &= _indi[CURR].value[0] > _indi[PREV].value[0];
+          if (METHOD(_method, 3)) _result &= _indi[PREV].value[0] > _indi[PPREV].value[0];
+          if (METHOD(_method, 4)) _result &= _indi[PREV].value[0] > 0.5 + _level + _level / 2;
         }
-        // PrintFormat("DeMarker sell: %g >= %g", demarker_0, 0.5 + _level);
         break;
     }
     return _result;
@@ -176,7 +180,7 @@ class Stg_DeMarker : public Strategy {
    */
   double PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, double _level = 0.0) {
     double _trail = _level * Market().GetPipSize();
-    int _direction = Order::OrderDirection(_cmd) * (_mode == ORDER_TYPE_SL ? -1 : 1);
+    int _direction = Order::OrderDirection(_cmd, _mode);
     double _default_value = Market().GetCloseOffer(_cmd) + _trail * _method * _direction;
     double _result = _default_value;
     switch (_method) {
