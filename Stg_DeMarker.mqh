@@ -84,6 +84,7 @@ class Stg_DeMarker : public Strategy {
     sparams.SetSignals(_params.DeMarker_SignalOpenMethod, _params.DeMarker_SignalOpenLevel,
                        _params.DeMarker_SignalOpenFilterMethod, _params.DeMarker_SignalOpenBoostMethod,
                        _params.DeMarker_SignalCloseMethod, _params.DeMarker_SignalCloseMethod);
+    sparams.SetPriceLimits(_params.DeMarker_PriceLimitMethod, _params.DeMarker_PriceLimitLevel);
     sparams.SetMaxSpread(_params.DeMarker_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_DeMarker(sparams, "DeMarker");
