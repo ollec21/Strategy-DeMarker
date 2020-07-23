@@ -79,7 +79,7 @@ class Stg_DeMarker : public Strategy {
     DeMarkerParams dm_params(_params.DeMarker_Period);
     dm_params.SetTf(_tf);
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_DeMarker(dm_params), NULL, NULL);
-    sparams.logger.SetLevel(_log_level);
+    sparams.logger.Ptr().SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.DeMarker_SignalOpenMethod, _params.DeMarker_SignalOpenLevel,
                        _params.DeMarker_SignalOpenFilterMethod, _params.DeMarker_SignalOpenBoostMethod,
