@@ -7,14 +7,14 @@
 INPUT int DeMarker_Period = 12;                 // Period
 INPUT int DeMarker_Shift = 1;                   // Shift
 INPUT int DeMarker_SignalOpenMethod = 12;       // Signal open method (-31-31)
-INPUT float DeMarker_SignalOpenLevel = 0.5;    // Signal open level (0.0-0.5)
+INPUT float DeMarker_SignalOpenLevel = 0.5;     // Signal open level (0.0-0.5)
 INPUT int DeMarker_SignalOpenFilterMethod = 0;  // Signal open filter method
 INPUT int DeMarker_SignalOpenBoostMethod = 0;   // Signal open boost method
 INPUT int DeMarker_SignalCloseMethod = 0;       // Signal close method (-63-63)
-INPUT float DeMarker_SignalCloseLevel = 0.5;   // Signal close level (0.0-0.5)
+INPUT float DeMarker_SignalCloseLevel = 0.5;    // Signal close level (0.0-0.5)
 INPUT int DeMarker_PriceLimitMethod = 0;        // Price limit method
-INPUT float DeMarker_PriceLimitLevel = 0;      // Price limit level
-INPUT float DeMarker_MaxSpread = 6.0;          // Max spread to trade (pips)
+INPUT float DeMarker_PriceLimitLevel = 0;       // Price limit level
+INPUT float DeMarker_MaxSpread = 6.0;           // Max spread to trade (pips)
 
 // Includes.
 #include <EA31337-classes/Indicators/Indi_DeMarker.mqh>
@@ -25,14 +25,14 @@ struct Stg_DeMarker_Params : StgParams {
   unsigned int DeMarker_Period;
   int DeMarker_Shift;
   int DeMarker_SignalOpenMethod;
-  double DeMarker_SignalOpenLevel;
+  float DeMarker_SignalOpenLevel;
   int DeMarker_SignalOpenFilterMethod;
   int DeMarker_SignalOpenBoostMethod;
   int DeMarker_SignalCloseMethod;
-  double DeMarker_SignalCloseLevel;
+  float DeMarker_SignalCloseLevel;
   int DeMarker_PriceLimitMethod;
-  double DeMarker_PriceLimitLevel;
-  double DeMarker_MaxSpread;
+  float DeMarker_PriceLimitLevel;
+  float DeMarker_MaxSpread;
 
   // Constructor: Set default param values.
   Stg_DeMarker_Params()
@@ -153,6 +153,6 @@ class Stg_DeMarker : public Strategy {
         break;
       }
     }
-    return _result;
+    return (float)_result;
   }
 };
