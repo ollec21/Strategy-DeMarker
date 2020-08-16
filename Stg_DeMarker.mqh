@@ -3,9 +3,12 @@
  * Implements DeMarker strategy based on for the DeMarker indicator.
  */
 
+// Includes.
+#include <EA31337-classes/Indicators/Indi_DeMarker.mqh>
+#include <EA31337-classes/Strategy.mqh>
+
 // User input params.
-INPUT int DeMarker_Period = 12;                 // Period
-INPUT int DeMarker_Shift = 1;                   // Shift
+INPUT float DeMarker_LotSize = 0;               // Lot size
 INPUT int DeMarker_SignalOpenMethod = 12;       // Signal open method (-31-31)
 INPUT float DeMarker_SignalOpenLevel = 0.5;     // Signal open level (0.0-0.5)
 INPUT int DeMarker_SignalOpenFilterMethod = 0;  // Signal open filter method
@@ -14,44 +17,52 @@ INPUT int DeMarker_SignalCloseMethod = 0;       // Signal close method (-63-63)
 INPUT float DeMarker_SignalCloseLevel = 0.5;    // Signal close level (0.0-0.5)
 INPUT int DeMarker_PriceLimitMethod = 0;        // Price limit method
 INPUT float DeMarker_PriceLimitLevel = 0;       // Price limit level
+INPUT int DeMarker_TickFilterMethod = 0;        // Tick filter method
 INPUT float DeMarker_MaxSpread = 6.0;           // Max spread to trade (pips)
+INPUT int DeMarker_Shift = 1;                   // Shift
+INPUT string __DeMarker_Indi_DeMarker_Parameters__ =
+    "-- DeMarker strategy: DeMarker indicator params --";  // >>> DeMarker strategy: DeMarker indicator <<<
+INPUT int Indi_DeMarker_Period = 12;                       // Period
 
-// Includes.
-#include <EA31337-classes/Indicators/Indi_DeMarker.mqh>
-#include <EA31337-classes/Strategy.mqh>
+// Structs.
+
+// Defines struct with default user indicator values.
+struct Indi_DeMarker_Params_Defaults : DeMarkerParams {
+  Indi_DeMarker_Params_Defaults() : DeMarkerParams(::Indi_DeMarker_Period) {}
+} indi_demarker_defaults;
+
+// Defines struct to store indicator parameter values.
+struct Indi_DeMarker_Params : public DeMarkerParams {
+  // Struct constructors.
+  void Indi_DeMarker_Params(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf) : DeMarkerParams(_params, _tf) {}
+};
+
+// Defines struct with default user strategy values.
+struct Stg_DeMarker_Params_Defaults : StgParams {
+  Stg_DeMarker_Params_Defaults()
+      : StgParams(::DeMarker_SignalOpenMethod, ::DeMarker_SignalOpenFilterMethod, ::DeMarker_SignalOpenLevel,
+                  ::DeMarker_SignalOpenBoostMethod, ::DeMarker_SignalCloseMethod, ::DeMarker_SignalCloseLevel,
+                  ::DeMarker_PriceLimitMethod, ::DeMarker_PriceLimitLevel, ::DeMarker_TickFilterMethod,
+                  ::DeMarker_MaxSpread, ::DeMarker_Shift) {}
+} stg_demarker_defaults;
 
 // Struct to define strategy parameters to override.
 struct Stg_DeMarker_Params : StgParams {
-  unsigned int DeMarker_Period;
-  int DeMarker_Shift;
-  int DeMarker_SignalOpenMethod;
-  float DeMarker_SignalOpenLevel;
-  int DeMarker_SignalOpenFilterMethod;
-  int DeMarker_SignalOpenBoostMethod;
-  int DeMarker_SignalCloseMethod;
-  float DeMarker_SignalCloseLevel;
-  int DeMarker_PriceLimitMethod;
-  float DeMarker_PriceLimitLevel;
-  float DeMarker_MaxSpread;
+  Indi_DeMarker_Params iparams;
+  StgParams sparams;
 
-  // Constructor: Set default param values.
-  Stg_DeMarker_Params()
-      : DeMarker_Period(::DeMarker_Period),
-        DeMarker_Shift(::DeMarker_Shift),
-        DeMarker_SignalOpenMethod(::DeMarker_SignalOpenMethod),
-        DeMarker_SignalOpenLevel(::DeMarker_SignalOpenLevel),
-        DeMarker_SignalOpenFilterMethod(::DeMarker_SignalOpenFilterMethod),
-        DeMarker_SignalOpenBoostMethod(::DeMarker_SignalOpenBoostMethod),
-        DeMarker_SignalCloseMethod(::DeMarker_SignalCloseMethod),
-        DeMarker_SignalCloseLevel(::DeMarker_SignalCloseLevel),
-        DeMarker_PriceLimitMethod(::DeMarker_PriceLimitMethod),
-        DeMarker_PriceLimitLevel(::DeMarker_PriceLimitLevel),
-        DeMarker_MaxSpread(::DeMarker_MaxSpread) {}
+  // Struct constructors.
+  Stg_DeMarker_Params(Indi_DeMarker_Params &_iparams, StgParams &_sparams)
+      : iparams(indi_demarker_defaults, _iparams.tf), sparams(stg_demarker_defaults) {
+    iparams = _iparams;
+    sparams = _sparams;
+  }
 };
 
 // Loads pair specific param values.
 #include "sets/EURUSD_H1.h"
 #include "sets/EURUSD_H4.h"
+#include "sets/EURUSD_H8.h"
 #include "sets/EURUSD_M1.h"
 #include "sets/EURUSD_M15.h"
 #include "sets/EURUSD_M30.h"
@@ -63,24 +74,24 @@ class Stg_DeMarker : public Strategy {
 
   static Stg_DeMarker *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
-    Stg_DeMarker_Params _params;
+    Indi_DeMarker_Params _indi_params(indi_demarker_defaults, _tf);
+    StgParams _stg_params(stg_demarker_defaults);
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Stg_DeMarker_Params>(_params, _tf, stg_dm_m1, stg_dm_m5, stg_dm_m15, stg_dm_m30, stg_dm_h1,
-                                         stg_dm_h4, stg_dm_h4);
+      SetParamsByTf<Indi_DeMarker_Params>(_indi_params, _tf, indi_demarker_m1, indi_demarker_m5, indi_demarker_m15,
+                                          indi_demarker_m30, indi_demarker_h1, indi_demarker_h4, indi_demarker_h8);
+      SetParamsByTf<StgParams>(_stg_params, _tf, stg_demarker_m1, stg_demarker_m5, stg_demarker_m15, stg_demarker_m30,
+                               stg_demarker_h1, stg_demarker_h4, stg_demarker_h8);
     }
+    // Initialize indicator.
+    DeMarkerParams dm_params(_indi_params);
+    _stg_params.SetIndicator(new Indi_DeMarker(_indi_params));
     // Initialize strategy parameters.
-    DeMarkerParams dm_params(_params.DeMarker_Period);
-    dm_params.SetTf(_tf);
-    StgParams sparams(new Trade(_tf, _Symbol), new Indi_DeMarker(dm_params), NULL, NULL);
-    sparams.logger.Ptr().SetLevel(_log_level);
-    sparams.SetMagicNo(_magic_no);
-    sparams.SetSignals(_params.DeMarker_SignalOpenMethod, _params.DeMarker_SignalOpenLevel,
-                       _params.DeMarker_SignalOpenFilterMethod, _params.DeMarker_SignalOpenBoostMethod,
-                       _params.DeMarker_SignalCloseMethod, _params.DeMarker_SignalCloseMethod);
-    sparams.SetPriceLimits(_params.DeMarker_PriceLimitMethod, _params.DeMarker_PriceLimitLevel);
-    sparams.SetMaxSpread(_params.DeMarker_MaxSpread);
+    _stg_params.GetLog().SetLevel(_log_level);
+    _stg_params.SetMagicNo(_magic_no);
+    _stg_params.SetTf(_tf, _Symbol);
     // Initialize strategy instance.
-    Strategy *_strat = new Stg_DeMarker(sparams, "DeMarker");
+    Strategy *_strat = new Stg_DeMarker(_stg_params, "DeMarker");
+    _stg_params.SetStops(_strat, _strat);
     return _strat;
   }
 
@@ -141,15 +152,15 @@ class Stg_DeMarker : public Strategy {
     double _result = _default_value;
     switch (_method) {
       case 0: {
-        int _bar_count = (int)_level * (int)_indi.GetPeriod();
-        _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count))
-                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
+        int _bar_count1 = (int)_level * (int)_indi.GetPeriod();
+        _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count1))
+                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count1));
         break;
       }
       case 1: {
-        int _bar_count = (int)_level * (int)_indi.GetPeriod();
-        _result = _direction < 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count))
-                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
+        int _bar_count2 = (int)_level * (int)_indi.GetPeriod();
+        _result = _direction < 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count2))
+                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count2));
         break;
       }
     }
