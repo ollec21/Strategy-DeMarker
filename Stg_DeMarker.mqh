@@ -15,8 +15,8 @@ INPUT int DeMarker_SignalOpenFilterMethod = 0;  // Signal open filter method
 INPUT int DeMarker_SignalOpenBoostMethod = 0;   // Signal open boost method
 INPUT int DeMarker_SignalCloseMethod = 0;       // Signal close method (-63-63)
 INPUT float DeMarker_SignalCloseLevel = 0.5;    // Signal close level (0.0-0.5)
-INPUT int DeMarker_PriceLimitMethod = 0;        // Price limit method
-INPUT float DeMarker_PriceLimitLevel = 0;       // Price limit level
+INPUT int DeMarker_PriceStopMethod = 0;         // Price stop method
+INPUT float DeMarker_PriceStopLevel = 0;        // Price stop level
 INPUT int DeMarker_TickFilterMethod = 0;        // Tick filter method
 INPUT float DeMarker_MaxSpread = 6.0;           // Max spread to trade (pips)
 INPUT int DeMarker_Shift = 1;                   // Shift
@@ -42,7 +42,7 @@ struct Stg_DeMarker_Params_Defaults : StgParams {
   Stg_DeMarker_Params_Defaults()
       : StgParams(::DeMarker_SignalOpenMethod, ::DeMarker_SignalOpenFilterMethod, ::DeMarker_SignalOpenLevel,
                   ::DeMarker_SignalOpenBoostMethod, ::DeMarker_SignalCloseMethod, ::DeMarker_SignalCloseLevel,
-                  ::DeMarker_PriceLimitMethod, ::DeMarker_PriceLimitLevel, ::DeMarker_TickFilterMethod,
+                  ::DeMarker_PriceStopMethod, ::DeMarker_PriceStopLevel, ::DeMarker_TickFilterMethod,
                   ::DeMarker_MaxSpread, ::DeMarker_Shift) {}
 } stg_demarker_defaults;
 
@@ -142,9 +142,9 @@ class Stg_DeMarker : public Strategy {
   }
 
   /**
-   * Gets price limit value for profit take or stop loss.
+   * Gets price stop value for profit take or stop loss.
    */
-  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
+  float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
     Indi_DeMarker *_indi = Data();
     double _trail = _level * Market().GetPipSize();
     int _direction = Order::OrderDirection(_cmd, _mode);
