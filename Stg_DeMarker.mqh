@@ -3,10 +3,6 @@
  * Implements DeMarker strategy based on for the DeMarker indicator.
  */
 
-// Includes.
-#include <EA31337-classes/Indicators/Indi_DeMarker.mqh>
-#include <EA31337-classes/Strategy.mqh>
-
 // User input params.
 INPUT float DeMarker_LotSize = 0;               // Lot size
 INPUT int DeMarker_SignalOpenMethod = 12;       // Signal open method (-31-31)
