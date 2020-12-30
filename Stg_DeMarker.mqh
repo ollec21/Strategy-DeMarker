@@ -16,6 +16,7 @@ INPUT float DeMarker_PriceStopLevel = 0;        // Price stop level
 INPUT int DeMarker_TickFilterMethod = 0;        // Tick filter method
 INPUT float DeMarker_MaxSpread = 6.0;           // Max spread to trade (pips)
 INPUT int DeMarker_Shift = 1;                   // Shift
+INPUT int DeMarker_OrderCloseTime = -10;        // Order close time in mins (>0) or bars (<0)
 INPUT string __DeMarker_Indi_DeMarker_Parameters__ =
     "-- DeMarker strategy: DeMarker indicator params --";  // >>> DeMarker strategy: DeMarker indicator <<<
 INPUT int Indi_DeMarker_Period = 12;                       // Period
@@ -39,7 +40,7 @@ struct Stg_DeMarker_Params_Defaults : StgParams {
       : StgParams(::DeMarker_SignalOpenMethod, ::DeMarker_SignalOpenFilterMethod, ::DeMarker_SignalOpenLevel,
                   ::DeMarker_SignalOpenBoostMethod, ::DeMarker_SignalCloseMethod, ::DeMarker_SignalCloseLevel,
                   ::DeMarker_PriceStopMethod, ::DeMarker_PriceStopLevel, ::DeMarker_TickFilterMethod,
-                  ::DeMarker_MaxSpread, ::DeMarker_Shift) {}
+                  ::DeMarker_MaxSpread, ::DeMarker_Shift, ::DeMarker_OrderCloseTime) {}
 } stg_demarker_defaults;
 
 // Struct to define strategy parameters to override.
