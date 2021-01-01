@@ -19,13 +19,13 @@ INPUT int DeMarker_Shift = 1;                   // Shift
 INPUT int DeMarker_OrderCloseTime = -20;        // Order close time in mins (>0) or bars (<0)
 INPUT string __DeMarker_Indi_DeMarker_Parameters__ =
     "-- DeMarker strategy: DeMarker indicator params --";  // >>> DeMarker strategy: DeMarker indicator <<<
-INPUT int Indi_DeMarker_Period = 12;                       // Period
+INPUT int DeMarker_Indi_DeMarker_Period = 12;              // Period
 
 // Structs.
 
 // Defines struct with default user indicator values.
 struct Indi_DeMarker_Params_Defaults : DeMarkerParams {
-  Indi_DeMarker_Params_Defaults() : DeMarkerParams(::Indi_DeMarker_Period) {}
+  Indi_DeMarker_Params_Defaults() : DeMarkerParams(::DeMarker_Indi_DeMarker_Period) {}
 } indi_demarker_defaults;
 
 // Defines struct to store indicator parameter values.
