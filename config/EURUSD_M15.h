@@ -5,7 +5,10 @@
 
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_DeMarker_Params_M15 : Indi_DeMarker_Params {
-  Indi_DeMarker_Params_M15() : Indi_DeMarker_Params(indi_demarker_defaults, PERIOD_M15) { shift = 0; }
+  Indi_DeMarker_Params_M15() : Indi_DeMarker_Params(indi_demarker_defaults, PERIOD_M15) {
+    period = 14;
+    shift = 0;
+  }
 } indi_demarker_m15;
 
 // Defines strategy's parameter values for the given pair symbol and timeframe.
