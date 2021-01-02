@@ -6,7 +6,7 @@
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_DeMarker_Params_M30 : Indi_DeMarker_Params {
   Indi_DeMarker_Params_M30() : Indi_DeMarker_Params(indi_demarker_defaults, PERIOD_M30) {
-    period = 14;
+    period = 4;
     shift = 0;
   }
 } indi_demarker_m30;
