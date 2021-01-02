@@ -6,11 +6,11 @@
 // User input params.
 INPUT float DeMarker_LotSize = 0;               // Lot size
 INPUT int DeMarker_SignalOpenMethod = 0;        // Signal open method (-31-31)
-INPUT float DeMarker_SignalOpenLevel = 0.0f;    // Signal open level (0.0-0.5)
+INPUT float DeMarker_SignalOpenLevel = 0.2f;    // Signal open level (0.0-0.5)
 INPUT int DeMarker_SignalOpenFilterMethod = 1;  // Signal open filter method
 INPUT int DeMarker_SignalOpenBoostMethod = 0;   // Signal open boost method
 INPUT int DeMarker_SignalCloseMethod = 0;       // Signal close method (-63-63)
-INPUT float DeMarker_SignalCloseLevel = 0.0f;   // Signal close level (0.0-0.5)
+INPUT float DeMarker_SignalCloseLevel = 0.2f;   // Signal close level (0.0-0.5)
 INPUT int DeMarker_PriceStopMethod = 0;         // Price stop method
 INPUT float DeMarker_PriceStopLevel = 0;        // Price stop level
 INPUT int DeMarker_TickFilterMethod = 1;        // Tick filter method
@@ -107,33 +107,26 @@ class Stg_DeMarker : public Strategy {
     Indi_DeMarker *_indi = Data();
     bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
     bool _result = _is_valid;
-    if (!_result) {
-      // Returns false when indicator data is not valid.
-      _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
-      return false;
-    }
-    double level = _level * Chart().GetPipSize();
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:
-        _result = _indi[CURR][0] < 0.5 - _level;
-        if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= _indi[PREV][0] < 0.5 - _level;
-          if (METHOD(_method, 1)) _result &= _indi[PPREV][0] < 0.5 - _level;    // @to-remove?
-          if (METHOD(_method, 2)) _result &= _indi[CURR][0] < _indi[PREV][0];   // @to-remove?
-          if (METHOD(_method, 3)) _result &= _indi[PREV][0] < _indi[PPREV][0];  // @to-remove?
-          if (METHOD(_method, 4)) _result &= _indi[PREV][0] < 0.5 - _level - _level / 2;
-        }
-        break;
-      case ORDER_TYPE_SELL:
-        _result = _indi[CURR][0] > 0.5 + _level;
-        if (_method != 0) {
-          if (METHOD(_method, 0)) _result &= _indi[PREV][0] > 0.5 + _level;
-          if (METHOD(_method, 1)) _result &= _indi[PPREV][0] > 0.5 + _level;
-          if (METHOD(_method, 2)) _result &= _indi[CURR][0] > _indi[PREV][0];
-          if (METHOD(_method, 3)) _result &= _indi[PREV][0] > _indi[PPREV][0];
-          if (METHOD(_method, 4)) _result &= _indi[PREV][0] > 0.5 + _level + _level / 2;
-        }
-        break;
+    if (_is_valid) {
+      Comment("Value: ", _indi[CURR][0]);
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          _result = _indi[CURR][0] < 0.5 - _level;
+          _result &= _indi.IsIncreasing(2);
+          if (_result && _method != 0) {
+            if (METHOD(_method, 0)) _result &= _indi.IsIncreasing(3);
+            if (METHOD(_method, 1)) _result &= _indi.IsIncByPct(_level);
+          }
+          break;
+        case ORDER_TYPE_SELL:
+          _result = _indi[CURR][0] > 0.5 + _level;
+          _result &= _indi.IsDecreasing(2);
+          if (_result && _method != 0) {
+            if (METHOD(_method, 0)) _result &= _indi.IsDecreasing(3);
+            if (METHOD(_method, 1)) _result &= _indi.IsDecByPct(-_level);
+          }
+          break;
+      }
     }
     return _result;
   }
