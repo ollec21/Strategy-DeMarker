@@ -19,7 +19,7 @@ INPUT int DeMarker_Shift = 1;                   // Shift
 INPUT int DeMarker_OrderCloseTime = -20;        // Order close time in mins (>0) or bars (<0)
 INPUT string __DeMarker_Indi_DeMarker_Parameters__ =
     "-- DeMarker strategy: DeMarker indicator params --";  // >>> DeMarker strategy: DeMarker indicator <<<
-INPUT int DeMarker_Indi_DeMarker_Period = 12;              // Period
+INPUT int DeMarker_Indi_DeMarker_Period = 4;               // Period
 
 // Structs.
 
