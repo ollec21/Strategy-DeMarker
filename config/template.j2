@@ -6,8 +6,6 @@
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_DeMarker_Params_{{ Timeframe }} : Indi_DeMarker_Params {
   Indi_DeMarker_Params_{{ Timeframe }}() : Indi_DeMarker_Params(indi_demarker_defaults, PERIOD_{{ Timeframe }}) {
-    applied_price = (ENUM_APPLIED_PRICE){{ DeMarker_Indi_DeMarker_Applied_Price | default(0) }};
-    ma_method = {{ DeMarker_Indi_DeMarker_MA_Method | default(0) }};
     period = {{ DeMarker_Indi_DeMarker_Period | default(0) }};
     shift = {{ DeMarker_Shift | default(0) }};
   }
@@ -20,10 +18,10 @@ struct Stg_DeMarker_Params_{{ Timeframe }} : StgParams {
     lot_size = {{ DeMarker_LotSize | default(0) }};
     signal_open_method = {{ DeMarker_SignalOpenMethod | default(0) }};
     signal_open_filter = {{ DeMarker_SignalOpenFilterMethod | default(1) }};
-    signal_open_level = {{ DeMarker_SignalOpenLevel | default(0) }};
+    signal_open_level = {{ DeMarker_SignalOpenLevel | default(0) }}f;
     signal_open_boost = {{ DeMarker_SignalOpenBoostMethod | default(0) }};
     signal_close_method = {{ DeMarker_SignalCloseMethod | default(0) }};
-    signal_close_level = {{ DeMarker_SignalCloseLevel | default(0) }};
+    signal_close_level = {{ DeMarker_SignalCloseLevel | default(0) }}f;
     price_stop_method = {{ DeMarker_PriceStopMethod | default(0) }};
     price_stop_level = {{ DeMarker_SignalCloseLevel | default(1) }};
     tick_filter_method = {{ DeMarker_TickFilterMethod  | default(1) }};
