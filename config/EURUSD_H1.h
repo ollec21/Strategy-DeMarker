@@ -18,10 +18,10 @@ struct Stg_DeMarker_Params_H1 : StgParams {
     lot_size = 0;
     signal_open_method = 0;
     signal_open_filter = 1;
-    signal_open_level = 0.2f;
+    signal_open_level = (float)0.2;
     signal_open_boost = 0;
     signal_close_method = 0;
-    signal_close_level = 0.2f;
+    signal_close_level = (float)0.2;
     price_stop_method = 0;
     price_stop_level = 2;
     tick_filter_method = 1;

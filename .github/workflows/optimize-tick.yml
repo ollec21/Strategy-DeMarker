@@ -114,9 +114,8 @@ jobs:
         run: cat sets/${{ matrix.setfile }}
       - uses: ea31337/mql-tester-action@master
         with:
-          BtDeposit: 100000
           BtDest: ${{ github.workspace }}/_results
-          BtMonths: 11-12
+          BtMonths: 10-12
           BtPair: ${{ matrix.pair }}
           BtYears: 2019
           OptFormatBrief: true
