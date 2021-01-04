@@ -1,4 +1,4 @@
-/*
+/**
  * @file
  * Defines default strategy parameter values for the given timeframe.
  */
@@ -6,7 +6,7 @@
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_DeMarker_Params_M1 : Indi_DeMarker_Params {
   Indi_DeMarker_Params_M1() : Indi_DeMarker_Params(indi_demarker_defaults, PERIOD_M1) {
-    period = 4;
+    period = 16;
     shift = 0;
   }
 } indi_demarker_m1;
@@ -18,12 +18,12 @@ struct Stg_DeMarker_Params_M1 : StgParams {
     lot_size = 0;
     signal_open_method = 0;
     signal_open_filter = 1;
-    signal_open_level = 0.2f;
+    signal_open_level = 0.2ff;
     signal_open_boost = 0;
     signal_close_method = 0;
-    signal_close_level = 0.2f;
+    signal_close_level = 0f;
     price_stop_method = 0;
-    price_stop_level = 2;
+    price_stop_level = 1;
     tick_filter_method = 1;
     max_spread = 0;
   }
