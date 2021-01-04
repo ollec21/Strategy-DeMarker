@@ -18,10 +18,10 @@ struct Stg_DeMarker_Params_{{ Timeframe }} : StgParams {
     lot_size = {{ DeMarker_LotSize | default(0) }};
     signal_open_method = {{ DeMarker_SignalOpenMethod | default(0) }};
     signal_open_filter = {{ DeMarker_SignalOpenFilterMethod | default(1) }};
-    signal_open_level = {{ DeMarker_SignalOpenLevel | default(0) }}f;
+    signal_open_level = (float){{ DeMarker_SignalOpenLevel | default(0) }};
     signal_open_boost = {{ DeMarker_SignalOpenBoostMethod | default(0) }};
     signal_close_method = {{ DeMarker_SignalCloseMethod | default(0) }};
-    signal_close_level = {{ DeMarker_SignalCloseLevel | default(0) }}f;
+    signal_close_level = (float){{ DeMarker_SignalCloseLevel | default(0) }};
     price_stop_method = {{ DeMarker_PriceStopMethod | default(0) }};
     price_stop_level = {{ DeMarker_SignalCloseLevel | default(1) }};
     tick_filter_method = {{ DeMarker_TickFilterMethod  | default(1) }};
