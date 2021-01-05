@@ -16,14 +16,14 @@ struct Stg_DeMarker_Params_M15 : StgParams {
   // Struct constructor.
   Stg_DeMarker_Params_M15() : StgParams(stg_demarker_defaults) {
     lot_size = 0;
-    signal_open_method = 0;
-    signal_open_filter = 1;
-    signal_open_level = (float)(float)0.2;
-    signal_open_boost = 0;
+    signal_open_method = -4;
+    signal_open_filter = 2;
+    signal_open_level = (float)0.0;
+    signal_open_boost = 1;
     signal_close_method = 0;
-    signal_close_level = (float)0;
+    signal_close_level = (float)0.0;
     price_stop_method = 0;
-    price_stop_level = 1;
+    price_stop_level = 0.0;
     tick_filter_method = 1;
     max_spread = 0;
   }
