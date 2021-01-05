@@ -6,7 +6,7 @@
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_DeMarker_Params_M5 : Indi_DeMarker_Params {
   Indi_DeMarker_Params_M5() : Indi_DeMarker_Params(indi_demarker_defaults, PERIOD_M5) {
-    period = 4;
+    period = 8;
     shift = 0;
   }
 } indi_demarker_m5;
@@ -18,7 +18,7 @@ struct Stg_DeMarker_Params_M5 : StgParams {
     lot_size = 0;
     signal_open_method = 0;
     signal_open_filter = 1;
-    signal_open_level = (float)0.2;
+    signal_open_level = (float)(float)0.2;
     signal_open_boost = 0;
     signal_close_method = 0;
     signal_close_level = (float)0;
