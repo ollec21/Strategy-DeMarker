@@ -23,7 +23,7 @@ struct Stg_DeMarker_Params_{{ Timeframe }} : StgParams {
     signal_close_method = {{ DeMarker_SignalCloseMethod | default(0) }};
     signal_close_level = (float){{ DeMarker_SignalCloseLevel | default(0) }};
     price_stop_method = {{ DeMarker_PriceStopMethod | default(0) }};
-    price_stop_level = {{ DeMarker_SignalCloseLevel | default(1) }};
+    price_stop_level = (float){{ DeMarker_SignalCloseLevel | default(1) }};
     tick_filter_method = {{ DeMarker_TickFilterMethod  | default(1) }};
     max_spread = {{ DeMarker_MaxSpread | default(0) }};
   }
