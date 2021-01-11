@@ -28,12 +28,6 @@ struct Indi_DeMarker_Params_Defaults : DeMarkerParams {
   Indi_DeMarker_Params_Defaults() : DeMarkerParams(::DeMarker_Indi_DeMarker_Period) {}
 } indi_demarker_defaults;
 
-// Defines struct to store indicator parameter values.
-struct Indi_DeMarker_Params : public DeMarkerParams {
-  // Struct constructors.
-  void Indi_DeMarker_Params(DeMarkerParams &_params, ENUM_TIMEFRAMES _tf) : DeMarkerParams(_params, _tf) {}
-};
-
 // Defines struct with default user strategy values.
 struct Stg_DeMarker_Params_Defaults : StgParams {
   Stg_DeMarker_Params_Defaults()
@@ -45,11 +39,11 @@ struct Stg_DeMarker_Params_Defaults : StgParams {
 
 // Struct to define strategy parameters to override.
 struct Stg_DeMarker_Params : StgParams {
-  Indi_DeMarker_Params iparams;
+  DeMarkerParams iparams;
   StgParams sparams;
 
   // Struct constructors.
-  Stg_DeMarker_Params(Indi_DeMarker_Params &_iparams, StgParams &_sparams)
+  Stg_DeMarker_Params(DeMarkerParams &_iparams, StgParams &_sparams)
       : iparams(indi_demarker_defaults, _iparams.tf), sparams(stg_demarker_defaults) {
     iparams = _iparams;
     sparams = _sparams;
@@ -71,11 +65,11 @@ class Stg_DeMarker : public Strategy {
 
   static Stg_DeMarker *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
-    Indi_DeMarker_Params _indi_params(indi_demarker_defaults, _tf);
+    DeMarkerParams _indi_params(indi_demarker_defaults, _tf);
     StgParams _stg_params(stg_demarker_defaults);
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Indi_DeMarker_Params>(_indi_params, _tf, indi_demarker_m1, indi_demarker_m5, indi_demarker_m15,
-                                          indi_demarker_m30, indi_demarker_h1, indi_demarker_h4, indi_demarker_h8);
+      SetParamsByTf<DeMarkerParams>(_indi_params, _tf, indi_demarker_m1, indi_demarker_m5, indi_demarker_m15,
+                                    indi_demarker_m30, indi_demarker_h1, indi_demarker_h4, indi_demarker_h8);
       SetParamsByTf<StgParams>(_stg_params, _tf, stg_demarker_m1, stg_demarker_m5, stg_demarker_m15, stg_demarker_m30,
                                stg_demarker_h1, stg_demarker_h4, stg_demarker_h8);
     }
