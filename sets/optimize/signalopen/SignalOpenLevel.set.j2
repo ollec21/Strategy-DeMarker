@@ -1,5 +1,5 @@
 DeMarker_Indi_DeMarker_Period={{ (period | default(0) | int) }}
-DeMarker_Indi_DeMarker_Shift={{ shift | default(0) }}
+DeMarker_Indi_DeMarker_Shift={{ (shift | default(0) | int) }}
 DeMarker_LotSize={{ lot_size | default(0) }}
 DeMarker_PriceStopLevel={{ (price_stop_level | default(0) | replace("(float)", "") | float) }}
 DeMarker_PriceStopMethod={{ price_stop_method | default(0) }}
@@ -11,6 +11,6 @@ DeMarker_SignalOpenLevel,1=0.2
 DeMarker_SignalOpenLevel,2=0.05
 DeMarker_SignalOpenLevel,3=0.5
 DeMarker_SignalOpenLevel,F=1
-DeMarker_SignalOpenLevel={{ (signal_open_level | default(0) | replace("(float)", "") | float) }}
+DeMarker_SignalOpenLevel={{ signal_open_level | default(0) | float }}
 DeMarker_SignalOpenMethod={{ signal_open_method | default(0) }}
 DeMarker_TickFilterMethod={{ tick_filter_method | default(1) }}

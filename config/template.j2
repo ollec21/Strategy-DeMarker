@@ -7,7 +7,7 @@
 struct Indi_DeMarker_Params_{{ Timeframe }} : DeMarkerParams {
   Indi_DeMarker_Params_{{ Timeframe }}() : DeMarkerParams(indi_demarker_defaults, PERIOD_{{ Timeframe }}) {
     period = {{ DeMarker_Indi_DeMarker_Period | default(0) }};
-    shift = {{ DeMarker_Shift | default(0) }};
+    shift = {{ DeMarker_Indi_DeMarker_Shift | default(0) }};
   }
 } indi_demarker_{{ Timeframe | lower }};
 
