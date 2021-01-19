@@ -1,6 +1,6 @@
-DeMarker_Indi_DeMarker_Period,1=4
+DeMarker_Indi_DeMarker_Period,1={{ [((period | default(0) | int) - 8), 2] | max }}
 DeMarker_Indi_DeMarker_Period,2=4
-DeMarker_Indi_DeMarker_Period,3=24
+DeMarker_Indi_DeMarker_Period,3={{ (period | default(0) | int) + 8 }}
 DeMarker_Indi_DeMarker_Period,F=1
 DeMarker_Indi_DeMarker_Period={{ (period | default(0) | int) }}
 DeMarker_Indi_DeMarker_Shift={{ (shift | default(0) | int) }}
