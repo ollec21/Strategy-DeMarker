@@ -100,13 +100,12 @@ class Stg_DeMarker : public Strategy {
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, float _level = 0.0f, int _shift = 0) {
     Chart *_chart = sparams.GetChart();
     Indi_DeMarker *_indi = Data();
-    bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
+    bool _is_valid = _indi[_shift].IsValid() && _indi[_shift + 1].IsValid() && _indi[_shift + 2].IsValid();
     bool _result = _is_valid;
     if (_is_valid) {
-      Comment("Value: ", _indi[CURR][0]);
       switch (_cmd) {
         case ORDER_TYPE_BUY:
-          _result = _indi[CURR][0] < 0.5 - _level;
+          _result &= _indi[_shift][0] < 0.5 - _level;
           _result &= _indi.IsIncreasing(2);
           if (_result && _method != 0) {
             if (METHOD(_method, 0)) _result &= _indi.IsIncreasing(3);
@@ -114,7 +113,7 @@ class Stg_DeMarker : public Strategy {
           }
           break;
         case ORDER_TYPE_SELL:
-          _result = _indi[CURR][0] > 0.5 + _level;
+          _result &= _indi[_shift][0] > 0.5 + _level;
           _result &= _indi.IsDecreasing(2);
           if (_result && _method != 0) {
             if (METHOD(_method, 0)) _result &= _indi.IsDecreasing(3);
