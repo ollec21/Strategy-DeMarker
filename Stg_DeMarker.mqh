@@ -68,12 +68,12 @@ class Stg_DeMarker : public Strategy {
     // Initialize strategy initial values.
     DeMarkerParams _indi_params(indi_demarker_defaults, _tf);
     StgParams _stg_params(stg_demarker_defaults);
-    if (!Terminal::IsOptimization()) {
-      SetParamsByTf<DeMarkerParams>(_indi_params, _tf, indi_demarker_m1, indi_demarker_m5, indi_demarker_m15,
-                                    indi_demarker_m30, indi_demarker_h1, indi_demarker_h4, indi_demarker_h8);
-      SetParamsByTf<StgParams>(_stg_params, _tf, stg_demarker_m1, stg_demarker_m5, stg_demarker_m15, stg_demarker_m30,
-                               stg_demarker_h1, stg_demarker_h4, stg_demarker_h8);
-    }
+#ifdef __config__
+    SetParamsByTf<DeMarkerParams>(_indi_params, _tf, indi_demarker_m1, indi_demarker_m5, indi_demarker_m15,
+                                  indi_demarker_m30, indi_demarker_h1, indi_demarker_h4, indi_demarker_h8);
+    SetParamsByTf<StgParams>(_stg_params, _tf, stg_demarker_m1, stg_demarker_m5, stg_demarker_m15, stg_demarker_m30,
+                             stg_demarker_h1, stg_demarker_h4, stg_demarker_h8);
+#endif
     // Initialize indicator.
     DeMarkerParams dm_params(_indi_params);
     _stg_params.SetIndicator(new Indi_DeMarker(_indi_params));
